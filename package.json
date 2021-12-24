@@ -23,9 +23,5 @@
     "url": "git+https://github.com/YouqinS/FullStackCourse_HUMSCS_sub.git"
   },
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/YouqinS/FullStackCourse_HUMSCS_sub/issues"
-  },
-  "homepage": "https://github.com/YouqinS/FullStackCourse_HUMSCS_sub#readme"
+  "license": "ISC"
 }
