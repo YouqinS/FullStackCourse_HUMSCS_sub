@@ -30,6 +30,7 @@ const app = express()
 
 
 app.use(express.json())//express json-parser
+app.use(express.static('build'))
 app.use(morgan('tiny'))
 
 
