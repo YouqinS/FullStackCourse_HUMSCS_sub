@@ -7,8 +7,17 @@ const Contact = require('./models/contact')
 const app = express()
 
 
-app.use(express.json())//express json-parser
 app.use(express.static('build'))
+app.use(express.json())//express json-parser
+
+const requestLogger = (request, response, next) => {
+    console.log('Method:', request.method)
+    console.log('Path:  ', request.path)
+    console.log('Body:  ', request.body)
+    console.log('---')
+    next()
+}
+app.use(requestLogger)
 
 morgan.token('type', (req) => {
     return req.method === 'POST'
@@ -45,27 +54,26 @@ app.get('/api/persons', (req, res) => {
     })
 })
 
-app.get('/api/persons/:id', (req, res) => {
+app.get('/api/persons/:id', (req, res, next) => {
     console.log(req.params)
     const id = Number(req.params.id)
     Contact.findById(req.params.id).then(contact => {
-        res.json(contact)
-    })
+        if (contact) {
+            res.json(contact)
+        } else {
+            res.status(404).end()
+        }
+    }).catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response) => {
     const body = request.body
     console.log(request.body)
-    //const alreadyExist = persons.some(p => p.name === body.name)
     if (!body || !body.name || !body.number) {
         return response.status(400).json({
             error: 'content missing'
         })
-    } /*else if (alreadyExist) {
-        return response.status(409).json({
-            error: 'person with same name already exists'
-        })
-    }*/
+    }
 
     const contact = new Contact({
         name: body.name,
@@ -77,6 +85,48 @@ app.post('/api/persons', (request, response) => {
     })
 })
 
+app.put('/api/persons/:id', (request, response, next) => {
+    const body = request.body
+
+    const contact = {
+        name: body.name,
+        number: body.number
+    }
+
+    Contact.findByIdAndUpdate(request.params.id, contact, { new: true })
+        .then(updatedContact => {
+            response.json(updatedContact)
+        })
+        .catch(error => next(error))
+})
+
+app.delete('/api/persons/:id', (request, response, next) => {
+    Contact.findByIdAndRemove(request.params.id)
+        .then(result => {
+            response.status(204).end()
+        })
+        .catch(error => next(error))
+})
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+}
+
+// handler of requests with unknown endpoint
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).send({ error: 'malformatted id' })
+    }
+
+    next(error)
+}
+
+// this has to be the last loaded middleware.
+app.use(errorHandler)
 
 
 const PORT = process.env.PORT || 3001

@@ -6,7 +6,7 @@ const ContactInfo = ({ contact, allcontacts, setContacts }) => {
         if (window.confirm(`sure to delete ${contact.name} ?`)) {
             Contacts.remove(contact.id).then(
                 response => {
-                    if (response.status === 200) {
+                    if (response.status === 204) {
                         setContacts(allcontacts.filter(c => c.id !== contact.id))
 
                     }

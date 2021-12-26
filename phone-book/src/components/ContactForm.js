@@ -17,24 +17,24 @@ const ContactForm = ({persons, setPersons, setNotification}) => {
         event.preventDefault()
 
         const alreadyExist = () => {
-            return contact => contact.name === newName && contact.number === newNumber;
+            return contact => contact.name === newName.trim() && contact.number === newNumber.trim();
         }
 
         const samePersonNewNumber = () => {
-            return contact => contact.name === newName && contact.number !== newNumber;
+            return contact => contact.name === newName.trim() && contact.number !== newNumber.trim();
         }
 
         if (persons.some(alreadyExist())) {
-            window.alert(`${newName} is already added to phonebook`);
+            window.alert(`${newName} with the same number is already added to phonebook`);
         } else if ((newName && newName.trim()) && (newNumber && newNumber.trim())) {
             if (persons.some(samePersonNewNumber())) {
-               if (window.confirm(`${newName} is already added to phonebook, replace the old number?`)) {
-                   const contactToBeUpdated = persons.find(p => p.name === newName)
-                   const updatedContact = {...contactToBeUpdated, number: newNumber}
+               if (window.confirm(`${newName} already exists in phonebook, update the old number?`)) {
+                   const contactToBeUpdated = persons.find(p => p.name === newName.trim())
+                   const updatedContact = {...contactToBeUpdated, number: newNumber.trim()}
 
                    Contacts.update(contactToBeUpdated.id, updatedContact).then(
                        response => {
-                           setPersons(persons.map(p => p.name === newName ? response : p))
+                           setPersons(persons.map(p => p.name === newName.trim() ? response : p))
                            setNewName('')
                            setNewNumber('')
                            const notification = {
@@ -54,13 +54,13 @@ const ContactForm = ({persons, setPersons, setNotification}) => {
                        setTimeout(() => {
                            setNotification(null)
                        }, 3000)
-                       setPersons(persons.filter(n => n.name !== newName))
+                       setPersons(persons.filter(n => n.name !== newName.trim()))
                    })
                }
             } else {
                 const personObj = {
-                    name: newName,
-                    number: newNumber
+                    name: newName.trim(),
+                    number: newNumber.trim()
                 }
                 Contacts.create(personObj).then(
                     response => {
