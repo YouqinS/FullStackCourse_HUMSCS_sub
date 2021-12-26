@@ -44,17 +44,18 @@ const ContactForm = ({persons, setPersons, setNotification}) => {
                            setNotification(notification)
                            setTimeout(() => {
                                setNotification(null)
-                           }, 3000)
+                           }, 5000)
                        }).catch(error => {
                        const notification = {
-                           "message":  `Information of '${contactToBeUpdated.name}' has been removed from server`,
+                           "message":  error.response.data.error,
                            "isError": true
                        }
                        setNotification(notification)
                        setTimeout(() => {
                            setNotification(null)
-                       }, 3000)
+                       }, 5000)
                        setPersons(persons.filter(n => n.name !== newName.trim()))
+                       console.log("message",  error.response.data.error)
                    })
                }
             } else {
@@ -74,9 +75,19 @@ const ContactForm = ({persons, setPersons, setNotification}) => {
                         setNotification(notification)
                         setTimeout(() => {
                             setNotification(null)
-                        }, 3000)
+                        }, 5000)
                     }
-                )
+                ).catch((error) => {
+                    const notification = {
+                        "message":  error.response.data.error,
+                        "isError": true
+                    }
+                    setNotification(notification)
+                    setTimeout(() => {
+                        setNotification(null)
+                    }, 3000)
+                    console.error(error.response.data.error)
+                });
             }
         }
     }
